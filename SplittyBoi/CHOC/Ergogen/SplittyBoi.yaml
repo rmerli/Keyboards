@@ -1,0 +1,255 @@
+# `U` is a predefined unit of measure that means 19.05mm, which is MX spacing
+units:
+  kx: cx
+  ky: cy
+
+
+  px: kx + 2
+  py: ky + 2
+points:
+  zones:
+    matrix:
+      key:
+        padding: 1ky
+        spread: 1kx
+      columns:
+        shifty:
+          key:
+            column_net: P4
+          rows: 
+            numbers:
+               skip: true
+        pinky:
+          key:
+            column_net: P5
+            stagger: 0.20ky
+        ring:
+          key:
+            column_net: P6
+            stagger: 0.66ky
+        middle:
+          key:
+            column_net: P7
+            stagger: 0.30ky
+        index:
+          key:
+            column_net: P8
+            stagger: -0.25ky
+        inner:
+          key:
+            column_net: P9
+            stagger: -0.12ky
+      rows:
+        bottom:
+          row_net: P18
+          padding: ky
+        home:
+          row_net: P19
+          padding: ky
+        top:
+          row_net: P20
+          padding: ky
+        numbers:
+          row_net: P21
+          padding: ky
+    thumb:
+      anchor:
+        ref: matrix_index_bottom
+        shift: [0U, -1.1U]
+        rotate: -8
+      columns:
+        inny:
+          key:
+            name: thumb_inny
+            column_net: P7 
+        tucky:
+          key:
+            name: thumb_tucky
+            column_net: P8
+            spread: U
+            splay: -8
+            origin: [-0.5U, -0.5U]
+        reachy:
+          key:
+            name: thumb_reachy
+            column_net: P9
+            spread: U
+            splay: -12
+            origin: [-0.5U, -0.5U]
+      rows:
+        fan:
+          row_net: P16
+outlines:
+  raw:
+    - what: rectangle
+      where: true
+      size: [px + 2 , py + 2]
+  keys:
+    - what: rectangle
+      where: true
+      size: [kx-0.5,ky-0.5]
+  panel_keys:
+    - what: rectangle
+      where: true
+      size: [13.9,13.9]
+  board:
+    - what: polygon
+      operation: stack
+      points:
+        - ref: matrix_inner_home
+          shift: [0.5px,0.6py]
+        - ref: matrix_inner_home
+          shift: [1.4px,0.6py]
+        - ref: matrix_inner_bottom
+          shift: [1.4px,-0.5py]
+        - ref: thumb_reachy
+          shift: [0.55px,0.55py]
+        - ref: thumb_reachy
+          shift: [0.55px,-0.00py]
+        - ref: thumb_inny
+          shift: [-0.5px,-0.556py]
+        - ref: matrix_shifty_bottom
+          shift: [0.4px,-0.54py]  
+        - ref: matrix_shifty_top
+          shift: [0.5px,-0.5py]
+  combo:
+    - name: raw
+    - operation:
+      name: board
+      fillet: 1
+  visual:
+    - name: combo
+    - operation: subtract
+      name: keys
+  panel:
+    - name: combo
+    - operation: subtract
+      name: panel_keys
+
+       
+pcbs:
+  splitty_boy:
+    outlines:
+      main:
+        outline: combo
+    footprints:
+      mx_hotswap:
+        what: choc
+        where: true
+        params:
+          hotswap: true
+          from: "{{column_net}}"
+          to: "{{colrow}}"
+          reverse: true
+          keycaps: true
+      vias_rows:
+        what: via
+        where: true
+        params:
+          net: "{{colrow}}"
+        adjust:
+          shift: [0, 3]
+      via_cols:
+        what: via
+        where: true
+        params:
+          net: "{{column_net}}"
+        adjust:
+          shift: [0, 9]
+      diode:
+        what: diode
+        where: true
+        params:
+          from: "{{colrow}}"
+          to: "{{row_net}}"
+        adjust:
+          shift: [0, -5]
+      slider_back:
+        what: slider
+        where:
+          ref: thumb_reachy
+          shift: [3,18]
+          rotate: -50.5
+        params:
+          side: B
+          from: RAW
+          to: B+
+      slider_front:
+        what: slider
+        where:
+          ref: thumb_reachy
+          shift: [3,18]
+          rotate: -50.5
+        params:
+          side: F
+          from: RAW
+          to: B+
+      via_power_slider_b+:
+        what: via
+        where:
+          ref: thumb_reachy
+          shift: [3,18]
+        params:
+          net: B+
+      via_power_slider_raw:
+        what: via
+        where:
+          ref: thumb_reachy
+          shift: [-1,15]
+        params:
+          net: RAW
+      pad_vcc:
+        what: pad
+        where:
+          ref: matrix_inner_bottom
+          shift: [30.5,-0.5py + 6]
+        params:
+          width: 2
+          height: 2
+          net: B+
+          text: B+
+      via_power_b+:
+        what: via
+        where:
+          ref: matrix_inner_bottom
+          shift: [30.5,-0.5py + 8]
+        params:
+          net: B+
+      pad_gnd:
+        what: pad
+        where:
+          ref: matrix_inner_bottom
+          shift: [30.5,-0.5py]
+        params:
+          width: 2
+          height: 2
+          net: GND
+          text: GND
+      oled_front:
+        what: oled
+        params:
+          side: "F"
+          SDA: P2
+          SCL: P3
+        where:
+          ref: matrix_inner_bottom
+          shift: [15,-0.5py + 5.5]
+          rotate: 90  
+      oled_back:
+        what: oled
+        params:
+          side: "B"
+          SDA: P2
+          SCL: P3
+        where:
+          ref: matrix_inner_bottom
+          shift: [27,-0.5py + 6]
+          rotate: -90  
+      mcu:
+        what: promicro
+        where:
+          - ref: matrix_inner_home
+            shift: [1.1U, -0.3U]
+            rotate: -90
+        params:
+          orientation: "down" 
